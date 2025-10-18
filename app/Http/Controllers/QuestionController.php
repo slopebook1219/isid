@@ -38,6 +38,6 @@ class QuestionController extends Controller
             'unit' => $request->unit,
         ]);
 
-        return redirect()->route('questions.create')->with('success', '質問を作成しました。');
+        return redirect()->route('questions.index')->with('success', '質問を作成しました。');
     }
 }
