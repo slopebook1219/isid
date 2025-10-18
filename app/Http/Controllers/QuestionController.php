@@ -13,8 +13,8 @@ class QuestionController extends Controller
      */
     public function index(): View
     {
-        $questions = Auth::user()->questions()->latest()->get();
-        return view('questions.index', compact('questions'));
+        // $questions = Auth::user()->questions()->latest()->get();
+        return view('questions.index');
     }
 
     /**
