@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/questions/create', [QuestionController::class, 'create'])->name('questions.create');
     Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
     Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+
 });
 
 require __DIR__.'/auth.php';
