@@ -10,13 +10,13 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     {{ __("You're logged in!") }}
-                    <<div class="mt-4">
-                           <a href="{{ route('questions') }}" 
-                                class="inline-block bg-blue-600 text-white font-medium py-2 px-4 rounded hover:bg-blue-700">
-                                問題
-                            </a>
+                    <div class="mt-4">
+                        <a href="{{ route('questions.index') }}" 
+                            class="inline-block bg-indigo-600 text-black font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
+                                問題一覧へ
+                        </a>
                 </div>
             </div>
         </div>
-    </div>
-</x-app-layout>
+        </div>
+    </x-app-layout>
