@@ -15,6 +15,8 @@
                             class="inline-block bg-indigo-600 text-black font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
                                 問題一覧へ
                         </a>
+                    <a href="{{ route('rooms.index') }}" class="text-blue-600 underline">ルーム一覧ページへ</a>
+                    </div>
                 </div>
             </div>
         </div>

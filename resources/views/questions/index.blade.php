@@ -6,10 +6,5 @@
             問題作成はこちら
     </a>
      <ul>
-        @foreach($questions as $question)
-            <li class="border p-2 mb-2 rounded">
-                <strong>{{ $question->text }}</strong> (単位: {{ $question->unit }})
-            </li>
-        @endforeach
     </ul>
 </div>
