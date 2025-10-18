@@ -12,5 +12,12 @@ class QuestionController extends Controller
     {
         return view('questions.index');
     }
-   
+
+    /**
+     * Show the form for creating a new question.
+     */
+    public function create(): View
+    {
+        return view('questions.create');
+    }
 }
