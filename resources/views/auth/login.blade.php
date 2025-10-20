@@ -6,7 +6,7 @@
         @csrf
 
         <!-- Title -->
-        <h1 class="text-3xl font-bold !text-gray-900 dark:!text-gray-100 mb-4 text-center">ログイン</h1>
+        <h1 class="text-3xl font-bold !text-black dark:!text-white mb-4 text-center">ログイン</h1>
 
         <!-- Email Address -->
         <div>
