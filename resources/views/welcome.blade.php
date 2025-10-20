@@ -15,11 +15,11 @@
     </head>
     <body class="min-h-screen bg-white flex flex-col">
         <!-- Header -->
-        <header class="w-full px-8 py-6 bg-gray-100 border-b border-gray-200">
-            <div class="flex items-center justify-between">
+        <header class="w-full px-8 py-6 bg-white border-b border-gray-200">
+            <div class="flex items-center justify-between"> 
                 <!-- Logo -->
-                <div class="text-xl font-bold text-gray-800">
-                    ✕電通総研
+                <div>
+                    <img src="{{ asset('images/dentsusoken_logo.png') }}" alt="DENTSUSOKEN_LOGO" class="h-11">
                 </div>
 
                 <!-- Navigation -->
