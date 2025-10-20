@@ -6,7 +6,7 @@
         @csrf
 
         <!-- Title -->
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 text-center">ログイン</h1>
+        <h1 class="text-3xl font-bold !text-gray-900 dark:!text-gray-100 mb-4 text-center">ログイン</h1>
 
         <!-- Email Address -->
         <div>
@@ -31,34 +31,38 @@
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                    ログイン情報を保存する
+                </span>
             </label>
         </div>
 
         <!-- Login Button -->
         <div class="mt-4">
-            <x-primary-button type="submit" class="w-full justify-center py-3">
+            <button type="submit" class="w-full justify-center py-3 bg-lime-500 hover:bg-lime-600 text-white
+                 inline-flex items-center px-4 font-semibold rounded-md shadow-sm
+                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500">
                 ログイン
-            </x-primary-button>
+            </button>
         </div>
 
         <!-- Forgot Password -->
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+        @if (Route::has('password.request'))
+            <div class="mt-4 text-center">
+                <a class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
+                    パスワードを忘れた方はこちら
                 </a>
-            @endif
-        </div>
+            </div>
+        @endif
 
         <!-- Separator line -->
-        <hr class="my-6 border-gray-300 dark:border-gray-700">
+        <hr class="my-6 border-gray-300 dark:border-gray-550">
 
         <!-- Register link -->
         @if (Route::has('register'))
             <div class="text-center pt-4">
                 <a href="{{ route('register') }}"
-                class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                     新規登録はこちら
                 </a>
             </div>
