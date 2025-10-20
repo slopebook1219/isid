@@ -19,7 +19,7 @@
             <div class="flex items-center justify-between"> 
                 <!-- Logo -->
                 <div>
-                    <img src="{{ Vite::asset('resources/images/dentsusoken_logo.png') }}" alt="DENTSUSOKEN_LOGO" class="h-11">
+                    <img src="{{ Vite::asset('public/images/dentsusoken_logo.png') }}" alt="DENTSUSOKEN_LOGO" class="h-11">
                 </div>
 
                 <!-- Navigation -->
