@@ -11,4 +11,9 @@ class Question extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function games()
+    {
+        return $this->belongsToMany(Game::class, 'game_question')
+                    ->withTimestamps();
+    }
 }

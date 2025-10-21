@@ -17,8 +17,10 @@
                         </a>
                     <a href="{{ route('rooms.index') }}" class="text-blue-600 underline">ルーム一覧ページへ</a>
                     </div>
+                    <div>       
+                         <a href="{{ route('games.create') }}" class="text-blue-600 underline">ゲーム開始ページへ</a>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </x-app-layout>

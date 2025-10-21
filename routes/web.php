@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,11 @@ Route::middleware('auth')->group(function () {
      // チーム名設定機能のルートを追加
     Route::get('/rooms/{room}/setup', [RoomController::class, 'setup'])->name('rooms.setup');
     Route::put('/rooms/{room}/setup', [RoomController::class, 'storeTeams'])->name('rooms.store_teams');
+
+    // ゲームに関するルート
+    Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
+    Route::post('/games/confirm', [GameController::class, 'confirm'])->name('games.confirm');
+    Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
 });
 
 require __DIR__.'/auth.php';

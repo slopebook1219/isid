@@ -12,7 +12,11 @@ class Room extends Model
         return $this->belongsTo(User::class);
     }
     public function teams()
-{
-    return $this->hasMany(Team::class);
-}
+    {
+        return $this->hasMany(Team::class);
+    }
+    public function games()
+    {
+        return $this->hasMany(Game::class);
+    }
 }
