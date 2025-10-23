@@ -14,11 +14,20 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+    <body class="font-sans text-gray-900 antialiased flex flex-col min-h-screen">
+        <header class="w-full px-8 py-6 bg-white border-b border-gray-200">
+            <div class="flex items-center">
+                <div>
+                    <a href="/">
+                        <img src="{{ asset('images/dentsusoken_logo.png') }}" alt="DENTSUSOKEN_LOGO" class="h-11">
+                    </a>
+                </div>
+            </div>
+        </header>
+        <main class="flex-grow flex flex-col sm:justify-center items-center w-full">
+            <div class="w-full sm:max-w-md mt-8 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
                 {{ $slot }}
             </div>
-        </div>
+        </main>
     </body>
 </html>
