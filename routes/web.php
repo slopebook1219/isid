@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
     Route::post('/games/confirm', [GameController::class, 'confirm'])->name('games.confirm');
     Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
+    Route::get('/games/{game_id}/play/{question_id}', [GameController::class, 'play'])->name('games.play');
 });
 
 require __DIR__.'/auth.php';

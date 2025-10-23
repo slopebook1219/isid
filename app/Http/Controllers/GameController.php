@@ -42,7 +42,23 @@ class GameController extends Controller
 
         $game->questions()->attach($request->question_ids);
 
-        return redirect()->route('games.create')->with('success', 'ゲームを作成しました。');
+        $firstQuestionId = $request->question_ids[0];
+        return redirect()->route('games.play', ['game_id' => $game->id, 'question_id' => $firstQuestionId])->with('success', 'ゲームを作成しました。');
     }
+
+    public function play($game_id, $question_id)
+    {
+        $game = Game::with('questions')->findOrFail($game_id);
+        $question = $game->questions()->findOrFail($question_id);
+
+        $questionIds = $game->questions->pluck('id')->toArray();
+        $currentIndex = array_search($question_id, $questionIds);
+        $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
+        $questionNumber = $currentIndex + 1;
+
+        return view('games.play', compact('game', 'question', 'nextQuestionId', 'questionNumber'));
+    }
+
+
 
 }
