@@ -56,11 +56,13 @@
         @endif
 
         <!-- Separator line -->
-        <hr class="my-6 border-gray-300 dark:border-gray-550">
+        <div class="my-6">
+            <hr class="border-gray-300 dark:border-gray-550">
+        </div>
 
         <!-- Register link -->
         @if (Route::has('register'))
-            <div class="text-center pt-4">
+            <div class="text-center mb-6">
                 <a href="{{ route('register') }}"
                 class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
                     新規登録はこちら
