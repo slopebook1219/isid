@@ -18,7 +18,9 @@
         <header class="w-full px-8 py-6 bg-white border-b border-gray-200">
             <div class="flex items-center">
                 <div>
-                    <img src="{{ asset('images/dentsusoken_logo.png') }}" alt="DENTSUSOKEN_LOGO" class="h-11">
+                    <a href="/">
+                        <img src="{{ asset('images/dentsusoken_logo.png') }}" alt="DENTSUSOKEN_LOGO" class="h-11">
+                    </a>
                 </div>
             </div>
         </header>
