@@ -36,6 +36,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/games/confirm', [GameController::class, 'confirm'])->name('games.confirm');
     Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
     Route::get('/games/{game_id}/play/{question_id}', [GameController::class, 'play'])->name('games.play');
+
+    Route::get('/api/questions/{question}', [QuestionController::class, 'show'])
+         ->name('api.questions.show');
+
+    Route::put('/api/questions/{question}', [QuestionController::class, 'update'])
+         ->name('api.questions.update');
+         
+    Route::delete('/api/questions/{question}', [QuestionController::class, 'destroy'])
+         ->name('api.questions.destroy');
 });
 
 require __DIR__.'/auth.php';
