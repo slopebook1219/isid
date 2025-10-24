@@ -3,6 +3,7 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AnswerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -36,6 +37,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/games/confirm', [GameController::class, 'confirm'])->name('games.confirm');
     Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
     Route::get('/games/{game_id}/play/{question_id}', [GameController::class, 'play'])->name('games.play');
+    Route::get('/games/{game}/result', [GameController::class, 'result'])->name('games.result');
 });
+
+Route::get('/games/{game_id}/questions/{question_id}/answer', [AnswerController::class, 'show'])
+    ->name('answers.show');
 
 require __DIR__.'/auth.php';

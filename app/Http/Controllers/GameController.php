@@ -39,7 +39,7 @@ class GameController extends Controller
             'user_id' => Auth::id(),
             'room_id' => $request->room_id,
         ]);
-
+        //中間テーブルにデータを保存
         $game->questions()->attach($request->question_ids);
 
         $firstQuestionId = $request->question_ids[0];
@@ -50,7 +50,6 @@ class GameController extends Controller
     {
         $game = Game::with('questions')->findOrFail($game_id);
         $question = $game->questions()->findOrFail($question_id);
-
         $questionIds = $game->questions->pluck('id')->toArray();
         $currentIndex = array_search($question_id, $questionIds);
         $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
@@ -59,6 +58,11 @@ class GameController extends Controller
         return view('games.play', compact('game', 'question', 'nextQuestionId', 'questionNumber'));
     }
 
+public function result($game_id)
+{
+    $game = Game::with('questions')->findOrFail($game_id);
 
+    return view('games.result', compact('game'));
+}
 
 }
