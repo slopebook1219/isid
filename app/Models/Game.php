@@ -22,7 +22,11 @@ class Game extends Model
 
     public function questions()
     {
-        return $this->belongsToMany(Question::class, 'game_question')
+        return $this->belongsToMany(Question::class, 'game_questions')
                     ->withTimestamps();
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

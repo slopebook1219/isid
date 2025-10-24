@@ -11,9 +11,10 @@ class Question extends Model
     {
         return $this->belongsTo(User::class);
     }
+    //中間テーブルを使用した多対多のリレーション
     public function games()
     {
-        return $this->belongsToMany(Game::class, 'game_question')
+        return $this->belongsToMany(Game::class, 'game_questions')
                     ->withTimestamps();
     }
 }
