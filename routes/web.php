@@ -40,7 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/games/{game}/result', [GameController::class, 'result'])->name('games.result');
 });
 
-Route::get('/games/{game_id}/questions/{question_id}/answer', [AnswerController::class, 'show'])
-    ->name('answers.show');
+Route::get('/games/{game_id}/questions/{question_id}/answer', [AnswerController::class, 'show'])->name('answers.show');
+Route::post('/answers/store', [AnswerController::class, 'store'])->name('answers.store');
 
 require __DIR__.'/auth.php';
