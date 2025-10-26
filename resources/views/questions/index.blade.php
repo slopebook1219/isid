@@ -42,7 +42,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-2">
                                                 <button @click="
-                                                            axios.get(`/api/questions/{{ $question->id }}`)
+                                                            axios.get(`/questions/{{ $question->id }}`)
                                                                 .then(response => {
                                                                     editingQuestion = response.data;
                                                                     showModal = true;
@@ -54,7 +54,7 @@
                                                 </button>
                                                 <button @click="
                                                     if (confirm('「{{ $question->text }}」を本当に削除しますか？')) {
-                                                        axios.delete(`/api/questions/{{ $question->id }}`)
+                                                        axios.delete(`/questions/{{ $question->id }}`)
                                                             .then(response => {
                                                                 document.getElementById('question-row-{{ $question->id }}').remove();
                                                                 message = response.data.message;
@@ -99,7 +99,7 @@
                                 
                                 <div class="mt-4">
                                     <form @submit.prevent="
-                                        axios.put(`/api/questions/${editingQuestion.id}`, {
+                                        axios.put(`/questions/${editingQuestion.id}`, {
                                             text: editingQuestion.text,
                                             unit: editingQuestion.unit
                                         })
