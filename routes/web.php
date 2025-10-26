@@ -36,6 +36,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
     Route::post('/games/confirm', [GameController::class, 'confirm'])->name('games.confirm');
     Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
+    Route::get('/games/{game_id}/play/{question_id}', [GameController::class, 'play'])->name('games.play');
+
+    Route::get('/questions/{question}', [QuestionController::class, 'show'])
+         ->name('questions.show');
+
+    Route::put('/questions/{question}', [QuestionController::class, 'update'])
+         ->name('questions.update');
+         
+    Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])
+         ->name('questions.destroy');
     Route::get('/games/{game_id}/questions/{question_id}/play', [GameController::class, 'play'])->name('games.play');
     Route::get('/games/{game}/result', [GameController::class, 'result'])->name('games.result');
 });
