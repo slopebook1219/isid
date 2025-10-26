@@ -3,6 +3,7 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AnswerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,6 +46,11 @@ Route::middleware('auth')->group(function () {
          
     Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])
          ->name('questions.destroy');
+    Route::get('/games/{game_id}/questions/{question_id}/play', [GameController::class, 'play'])->name('games.play');
+    Route::get('/games/{game}/result', [GameController::class, 'result'])->name('games.result');
 });
+
+Route::get('/games/{game_id}/questions/{question_id}/answer', [AnswerController::class, 'show'])->name('answers.show');
+Route::post('/answers/store', [AnswerController::class, 'store'])->name('answers.store');
 
 require __DIR__.'/auth.php';
