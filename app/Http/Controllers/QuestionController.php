@@ -19,28 +19,23 @@ class QuestionController extends Controller
         return view('questions.index', compact('questions'));
     }
 
-    /**
-     * Show the form for creating a new question.
-     */
-    public function create(): View
-    {
-        return view('questions.create');
-    }
-
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'text' => 'required|string',
             'unit' => 'required|string',
         ]);
 
-        Question::create([
+        $question = Question::create([
             'user_id' => Auth::id(),
             'text' => $request->text,
             'unit' => $request->unit,
         ]);
 
-        return redirect()->route('questions.index')->with('success', '質問を作成しました。');
+        return response()->json([
+            'message' => '質問を作成しました。',
+            'question' => $question,
+        ]);
     }
 
     /**
