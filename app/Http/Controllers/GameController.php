@@ -45,7 +45,7 @@ class GameController extends Controller
         $game->questions()->attach($request->question_ids);
 
         $firstQuestionId = $request->question_ids[0];
-        return redirect()->route('games.play', ['game_id' => $game->id, 'question_id' => $firstQuestionId])->with('success', 'ゲームを作成しました。');
+        return redirect()->route('games.host', ['game_id' => $game->id, 'question_id' => $firstQuestionId])->with('success', 'ゲームを開始しました。');
     }
 
     public function play($game_id, $question_id)
