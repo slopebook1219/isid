@@ -55,10 +55,14 @@
                         <p class="text-sm text-gray-600 font-medium">
                             📺 投影画面操作
                         </p>
-                        <p class="text-xs text-gray-500 mt-1">
-                            これらのボタンで投影画面の表示を切り替えます
-                        </p>
+
                     </div>
+                    
+                    {{-- 反映中メッセージ --}}
+                    <div id="projectionProgressContainer" class="mb-4" style="height: 24px; display: flex; align-items: center; justify-content: center;">
+                        <p class="text-sm text-blue-600 text-center font-medium" style="visibility: hidden;">投影画面に反映中...</p>
+                    </div>
+                    
                     <div class="flex justify-between items-center">
                         <div>
                             <button 
@@ -139,9 +143,29 @@
             }
         }
 
+        // 反映中メッセージ管理
+        let progressInterval = null;
+        function showProgress() {
+            const container = document.getElementById('projectionProgressContainer');
+            const message = container.querySelector('p');
+            message.style.visibility = 'visible';
+        }
+
+        function hideProgress() {
+            const container = document.getElementById('projectionProgressContainer');
+            const message = container.querySelector('p');
+            message.style.visibility = 'hidden';
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }
+
         // 状態を更新
         async function updateState(newState) {
             try {
+                showProgress();
+                
                 const response = await fetch(projectionStateUrl, {
                     method: 'POST',
                     headers: {
@@ -150,12 +174,51 @@
                     },
                     body: JSON.stringify({ state: newState }),
                 });
+                
                 if (response.ok) {
                     currentState = newState;
                     updateButtonStates();
+                    
+                    // 投影画面への反映を確認
+                    // 投影画面のポーリング間隔（3秒）を考慮して、1秒ごとに3回チェック
+                    let checkCount = 0;
+                    const maxChecks = 3;
+                    
+                    if (progressInterval) clearInterval(progressInterval);
+                    
+                    // 最初の1秒待機（投影画面の次のポーリングサイクルで取得できるように）
+                    setTimeout(() => {
+                        progressInterval = setInterval(async () => {
+                            checkCount++;
+                            
+                            try {
+                                const verifyResponse = await fetch(projectionStateGetUrl);
+                                const verifyData = await verifyResponse.json();
+                                
+                                if (verifyData.state === newState) {
+                                    hideProgress();
+                                    clearInterval(progressInterval);
+                                    progressInterval = null;
+                                } else if (checkCount >= maxChecks) {
+                                    hideProgress();
+                                    clearInterval(progressInterval);
+                                    progressInterval = null;
+                                }
+                            } catch (error) {
+                                if (checkCount >= maxChecks) {
+                                    hideProgress();
+                                    clearInterval(progressInterval);
+                                    progressInterval = null;
+                                }
+                            }
+                        }, 1000); // 1秒ごとにチェック（投影画面のポーリング間隔3秒に合わせて）
+                    }, 1000);
+                } else {
+                    hideProgress();
                 }
             } catch (error) {
                 console.error('エラー:', error);
+                hideProgress();
             }
         }
 
