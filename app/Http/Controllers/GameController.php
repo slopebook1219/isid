@@ -89,8 +89,11 @@ class GameController extends Controller
     {
         $game = Game::with('questions')->findOrFail($game_id);
         $question = $game->questions()->findOrFail($question_id);
+        $questionIds = $game->questions->pluck('id')->toArray();
+        $currentIndex = array_search($question_id, $questionIds);
+        $questionNumber = $currentIndex + 1;
 
-        return view('games.projection', compact('game', 'question'));
+        return view('games.projection', compact('game', 'question', 'questionNumber'));
     }
 
     public function getAnswers($game_id, $question_id)
