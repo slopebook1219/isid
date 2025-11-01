@@ -74,6 +74,7 @@ class GameController extends Controller
         $questionIds = $game->questions->pluck('id')->toArray();
         $currentIndex = array_search($question_id, $questionIds);
         $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
+        $prevQuestionId = ($currentIndex > 0) ? $questionIds[$currentIndex - 1] : null;
         $questionNumber = $currentIndex + 1;
         $teams = $game->room->teams->sortBy('name');
 
@@ -83,7 +84,7 @@ class GameController extends Controller
             Session::put($projectionStateKey, 'qr_code');
         }
 
-        return view('games.host', compact('game', 'question', 'nextQuestionId', 'questionNumber', 'teams'));
+        return view('games.host', compact('game', 'question', 'nextQuestionId', 'prevQuestionId', 'questionNumber', 'teams'));
     }
 
     public function projection($game_id, $question_id)

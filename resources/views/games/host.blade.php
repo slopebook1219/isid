@@ -25,7 +25,8 @@
                         <h3 class="text-2xl font-bold text-gray-900">回答一覧</h3>
                         <button 
                             id="showResultsBtn" 
-                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                            type="button"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-emerald-700 hover:border-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                             onclick="showResults()">
                             結果を投影画面に表示
                         </button>
@@ -56,17 +57,28 @@
 
             {{-- ナビゲーション --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 flex justify-between">
+                <div class="p-6 flex justify-between items-center">
+                    <div>
+                        @if ($prevQuestionId)
+                            <a href="{{ route('games.host', ['game_id' => $game->id, 'question_id' => $prevQuestionId]) }}" 
+                               class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                               onclick="return confirm('本当に前の問題に戻りますか？');">
+                                ← 前の問題へ
+                            </a>
+                        @endif
+                    </div>
                     <div>
                         @if ($nextQuestionId)
                             <a href="{{ route('games.host', ['game_id' => $game->id, 'question_id' => $nextQuestionId]) }}" 
-                               class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                                次の問題へ
+                               class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                               onclick="return confirm('次の問題に進みますか？\n\nこの操作により、投影画面も次の問題のQRコード表示に切り替わります。');">
+                                次の問題へ →
                             </a>
                         @else
                             <a href="{{ route('games.result', ['game' => $game->id]) }}" 
-                               class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-                                結果を見る
+                               class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                               onclick="return confirm('結果画面に移動しますか？');">
+                                結果を見る →
                             </a>
                         @endif
                     </div>
@@ -105,6 +117,10 @@
 
         // 結果表示ボタン
         async function showResults() {
+            if (!confirm('投影画面に結果を表示しますか？\n\nこの操作により、投影画面が結果表示モードに切り替わります。')) {
+                return;
+            }
+
             try {
                 const response = await fetch(projectionStateUrl, {
                     method: 'POST',
@@ -121,6 +137,7 @@
                 }
             } catch (error) {
                 console.error('エラー:', error);
+                alert('エラーが発生しました。もう一度お試しください。');
             }
         }
 
