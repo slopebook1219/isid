@@ -69,12 +69,13 @@ class GameController extends Controller
 
     public function host($game_id, $question_id)
     {
-        $game = Game::with('questions')->findOrFail($game_id);
+        $game = Game::with(['questions', 'room.teams'])->findOrFail($game_id);
         $question = $game->questions()->findOrFail($question_id);
         $questionIds = $game->questions->pluck('id')->toArray();
         $currentIndex = array_search($question_id, $questionIds);
         $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
         $questionNumber = $currentIndex + 1;
+        $teams = $game->room->teams->sortBy('name');
 
         // 投影画面の状態を初期化（QRコード表示）
         $projectionStateKey = "projection_state_{$game_id}_{$question_id}";
@@ -82,7 +83,7 @@ class GameController extends Controller
             Session::put($projectionStateKey, 'qr_code');
         }
 
-        return view('games.host', compact('game', 'question', 'nextQuestionId', 'questionNumber'));
+        return view('games.host', compact('game', 'question', 'nextQuestionId', 'questionNumber', 'teams'));
     }
 
     public function projection($game_id, $question_id)

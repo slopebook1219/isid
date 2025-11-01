@@ -42,7 +42,7 @@
                                         回答値
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        回答時刻
+                                     
                                     </th>
                                 </tr>
                             </thead>
@@ -83,6 +83,7 @@
         const projectionStateUrl = '{{ route("games.update-projection-state", ["game_id" => $game->id, "question_id" => $question->id]) }}';
         const projectionUrl = '{{ route("games.projection", ["game_id" => $game->id, "question_id" => $question->id]) }}';
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const allTeams = @json($teams->values());
 
         // 投影画面を別ウィンドウで開く
         function openProjectionWindow() {
@@ -123,7 +124,6 @@
             }
         }
 
-        // 回答一覧を取得して表示
         async function fetchAnswers() {
             try {
                 const response = await fetch(answersUrl);
@@ -132,40 +132,78 @@
                 const tbody = document.getElementById('answersTableBody');
                 tbody.innerHTML = '';
 
+                const answersMap = {};
                 if (data.answers && data.answers.length > 0) {
                     data.answers.forEach(answer => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                ${answer.team_name}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${answer.answer_value}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${answer.created_at}
-                            </td>
-                        `;
-                        tbody.appendChild(row);
+                        answersMap[answer.team_id] = answer;
                     });
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
-                                まだ回答がありません
-                            </td>
-                        </tr>
-                    `;
                 }
+
+                const answerValues = Object.values(answersMap).map(a => parseFloat(a.answer_value));
+                let maxValue = null, minValue = null, medianValues = [];
+                
+                if (answerValues.length > 0) {
+                    maxValue = Math.max(...answerValues);
+                    minValue = Math.min(...answerValues);
+                    
+                    const sorted = [...answerValues].sort((a, b) => a - b);
+                    if (sorted.length % 2 === 0) {
+                        const mid = sorted.length / 2;
+                        medianValues = [sorted[mid - 1], sorted[mid]];
+                    } else {
+                        const mid = Math.floor(sorted.length / 2);
+                        medianValues = [sorted[mid]];
+                    }
+                }
+
+                allTeams.forEach(team => {
+                    const answer = answersMap[team.id];
+                    const row = document.createElement('tr');
+                    
+                    let valueCell = '';
+                    let labels = [];
+                    let rowClass = '';
+                    
+                    if (answer) {
+                        const value = parseFloat(answer.answer_value);
+                        const intValue = Math.round(value);
+                        
+                        if (maxValue !== null && Math.abs(value - maxValue) < 0.0001) {
+                            labels.push('<span style="padding: 4px 8px; background-color: #fee2e2; color: #991b1b; font-size: 0.75rem; font-weight: 600; border-radius: 4px;">最大値</span>');
+                        }
+                        if (minValue !== null && Math.abs(value - minValue) < 0.0001) {
+                            labels.push('<span style="padding: 4px 8px; background-color: #dbeafe; color: #1e40af; font-size: 0.75rem; font-weight: 600; border-radius: 4px;">最小値</span>');
+                        }
+                        if (medianValues.length > 0 && medianValues.some(mv => Math.abs(value - mv) < 0.0001)) {
+                            labels.push('<span style="padding: 6px 12px; background-color: #ffffff; color: #000000; font-size: 0.875rem; font-weight: 700; border-radius: 6px; border: 2px solid #000000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🎯 中央値</span>');
+                            rowClass = 'bg-emerald-50 border-l-4 border-emerald-500';
+                        }
+                        
+                        valueCell = `<span class="font-semibold">${intValue}</span>`;
+                    } else {
+                        valueCell = '<span class="text-gray-400">未回答</span>';
+                    }
+                    
+                    row.className = rowClass;
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${team.name}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${valueCell}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">${labels.join('')}</div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
             } catch (error) {
                 console.error('回答の取得に失敗しました:', error);
             }
         }
 
-        // 初回読み込み
         fetchAnswers();
-
-        // 3秒ごとにポーリング
         setInterval(fetchAnswers, 3000);
     </script>
 </x-app-layout>
