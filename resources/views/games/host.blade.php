@@ -13,7 +13,7 @@
                     <h3 class="text-2xl font-bold mb-4">問題</h3>
                     <p class="text-xl">{{ $question->text }}</p>
                     @if($question->unit)
-                        <p class="text-sm text-gray-500 mt-2">単位: {{ $question->unit }}</p>
+                    <p class="text-sm text-gray-500 mt-2">単位: {{ $question->unit }}</p>
                     @endif
                 </div>
             </div>
@@ -24,19 +24,22 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-2xl font-bold text-gray-900">回答一覧</h3>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         チーム名
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         回答値
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                     
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+
                                     </th>
                                 </tr>
                             </thead>
@@ -57,26 +60,24 @@
                         </p>
 
                     </div>
-                    
+
                     {{-- 反映中メッセージ --}}
-                    <div id="projectionProgressContainer" class="mb-4" style="height: 24px; display: flex; align-items: center; justify-content: center;">
-                        <p class="text-sm text-blue-600 text-center font-medium" style="visibility: hidden;">投影画面に反映中...</p>
+                    <div id="projectionProgressContainer" class="mb-4"
+                        style="height: 24px; display: flex; align-items: center; justify-content: center;">
+                        <p class="text-sm text-blue-600 text-center font-medium" style="visibility: hidden;">投影画面に反映中...
+                        </p>
                     </div>
-                    
+
                     <div class="flex justify-between items-center">
                         <div>
-                            <button 
-                                id="prevBtn"
-                                type="button"
+                            <button id="prevBtn" type="button"
                                 class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                                 onclick="navigatePrevious()">
                                 ← 前へ
                             </button>
                         </div>
                         <div>
-                            <button 
-                                id="nextBtn"
-                                type="button"
+                            <button id="nextBtn" type="button"
                                 class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                                 onclick="navigateNext()">
                                 次へ →
@@ -369,4 +370,3 @@
         setInterval(fetchAnswers, 3000);
     </script>
 </x-app-layout>
-

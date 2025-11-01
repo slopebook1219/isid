@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +13,7 @@
         * {
             box-sizing: border-box;
         }
+
         body {
             margin: 0;
             padding: 0;
@@ -22,12 +24,14 @@
             color: black;
             font-family: 'Noto Sans JP', sans-serif;
         }
+
         #qrCodeContainer {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
         }
+
         .qr-header {
             height: 12vh;
             display: flex;
@@ -35,11 +39,13 @@
             justify-content: center;
             flex-shrink: 0;
         }
+
         .qr-header h2 {
             font-size: 6vh;
             font-weight: bold;
             margin: 0;
         }
+
         .qr-main {
             flex: 1;
             display: flex;
@@ -49,11 +55,13 @@
             padding: 2vh 4vw;
             min-height: 0;
         }
+
         .qr-question {
             text-align: center;
             margin-bottom: 3vh;
             max-width: 90%;
         }
+
         .qr-question-text {
             font-size: 7vh;
             font-weight: bold;
@@ -61,27 +69,31 @@
             margin: 0 0 2vh 0;
             word-wrap: break-word;
         }
+
         .qr-unit {
             font-size: 4vh;
             font-weight: bold;
             color: #374151;
             margin: 0;
         }
+
         .qr-code-wrapper {
             background: white;
             padding: 2vh;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .qr-code-wrapper svg {
             width: 30vh !important;
             height: 30vh !important;
             max-width: 40vw;
             max-height: 40vh;
         }
+
         .qr-footer {
             height: 10vh;
             display: flex;
@@ -91,19 +103,22 @@
             flex-shrink: 0;
             gap: 1vh;
         }
+
         .qr-footer-text {
             font-size: 3vh;
             margin: 0;
             color: #4B5563;
         }
+
         .qr-footer-link {
             font-size: 2vh;
         }
+
         .qr-footer-link a {
             color: #2563EB;
             text-decoration: underline;
         }
-        
+
         /* 結果表示モード */
         #resultsContainer {
             width: 100%;
@@ -112,16 +127,19 @@
             flex-direction: column;
             padding: 3vh 4vw;
         }
+
         .results-header {
             text-align: center;
             margin-bottom: 2vh;
             flex-shrink: 0;
         }
+
         .results-header h2 {
             font-size: 8vh;
             font-weight: bold;
             margin: 0;
         }
+
         .results-list {
             flex: 1;
             display: flex;
@@ -129,6 +147,7 @@
             gap: 2vh;
             overflow: hidden;
         }
+
         .result-item {
             background: #F3F4F6;
             padding: 3vh 4vw;
@@ -140,18 +159,21 @@
             justify-content: center;
             min-height: 0;
         }
+
         .result-label {
             font-size: 4vh;
             color: #6B7280;
             margin-bottom: 2vh;
             font-weight: 600;
         }
+
         .result-value {
             font-size: 12vh;
             font-weight: bold;
             margin-bottom: 2vh;
             line-height: 1;
         }
+
         .result-team {
             font-size: 6vh;
             color: #1F2937;
@@ -159,31 +181,34 @@
         }
     </style>
 </head>
+
 <body>
-    
+
     {{-- QRコード表示モード --}}
     <div id="qrCodeContainer">
         <div class="qr-header">
             <h2>第{{ $questionNumber }}問</h2>
         </div>
-        
+
         <div class="qr-main">
             <div class="qr-question">
                 <p class="qr-question-text">{{ $question->text }}</p>
                 @if($question->unit)
-                    <p class="qr-unit">単位: {{ $question->unit }}</p>
+                <p class="qr-unit">単位: {{ $question->unit }}</p>
                 @endif
             </div>
-            
+
             <div class="qr-code-wrapper">
-                {!! QrCode::size(400)->generate(route('answers.show', ['game_id' => $game->id, 'question_id' => $question->id])) !!}
+                {!! QrCode::size(400)->generate(route('answers.show', ['game_id' => $game->id, 'question_id' =>
+                $question->id])) !!}
             </div>
         </div>
-        
+
         <div class="qr-footer">
             <p class="qr-footer-text">QRコードをスキャンして回答してください</p>
             <div class="qr-footer-link">
-                <a href="{{ route('answers.show', ['game_id' => $game->id, 'question_id' => $question->id]) }}" target="_blank">
+                <a href="{{ route('answers.show', ['game_id' => $game->id, 'question_id' => $question->id]) }}"
+                    target="_blank">
                     回答ページへ（開発用リンク）
                 </a>
             </div>
@@ -195,7 +220,7 @@
         <div class="results-header">
             <h2 id="resultTitle">結果</h2>
         </div>
-        
+
         <div class="results-list">
             <div class="result-item">
                 <div class="result-label" id="currentLabel">-</div>
@@ -332,4 +357,5 @@
         });
     </script>
 </body>
+
 </html>
