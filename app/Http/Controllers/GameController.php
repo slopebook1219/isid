@@ -80,9 +80,7 @@ class GameController extends Controller
 
         // 投影画面の状態を初期化（QRコード表示）
         $projectionStateKey = "projection_state_{$game_id}_{$question_id}";
-        if (!Session::has($projectionStateKey)) {
-            Session::put($projectionStateKey, 'qr_code');
-        }
+        Session::put($projectionStateKey, 'qr_code');
 
         return view('games.host', compact('game', 'question', 'nextQuestionId', 'prevQuestionId', 'questionNumber', 'teams'));
     }
@@ -154,11 +152,36 @@ class GameController extends Controller
         $maxTeam = $answers->firstWhere('answer_value', $maxValue)->team->name ?? null;
         $minTeam = $answers->firstWhere('answer_value', $minValue)->team->name ?? null;
         
-        // 中央値に最も近い値のチームを取得
-        $medianAnswer = $answers->sortBy(function ($answer) use ($medianValue) {
-            return abs($answer->answer_value - $medianValue);
-        })->first();
-        $medianTeam = $medianAnswer ? $medianAnswer->team->name : null;
+        $medianTeams = [];
+        if ($count % 2 === 0) {
+            $medianValue1 = $values[$count / 2 - 1];
+            $medianValue2 = $values[$count / 2];
+            
+            $medianAnswers1 = $answers->filter(function ($answer) use ($medianValue1) {
+                return abs($answer->answer_value - $medianValue1) < 0.0001;
+            });
+            $medianAnswers2 = $answers->filter(function ($answer) use ($medianValue2) {
+                return abs($answer->answer_value - $medianValue2) < 0.0001;
+            });
+            
+            foreach ($medianAnswers1 as $answer) {
+                $medianTeams[] = $answer->team->name;
+            }
+            foreach ($medianAnswers2 as $answer) {
+                if (!in_array($answer->team->name, $medianTeams)) {
+                    $medianTeams[] = $answer->team->name;
+                }
+            }
+        } else {
+            $medianAnswer = $answers->sortBy(function ($answer) use ($medianValue) {
+                return abs($answer->answer_value - $medianValue);
+            })->first();
+            if ($medianAnswer) {
+                $medianTeams[] = $medianAnswer->team->name;
+            }
+        }
+        
+        $medianTeam = !empty($medianTeams) ? implode('、', $medianTeams) : null;
 
         return response()->json([
             'max' => $maxValue,
@@ -167,6 +190,7 @@ class GameController extends Controller
             'max_team' => $maxTeam,
             'min_team' => $minTeam,
             'median_team' => $medianTeam,
+            'median_teams' => $medianTeams, 
         ]);
     }
 
@@ -180,8 +204,9 @@ class GameController extends Controller
 
     public function updateProjectionState(Request $request, $game_id, $question_id)
     {
+        $validStates = ['qr_code', 'result_max_team', 'result_max_value', 'result_min_team', 'result_min_value', 'result_median_team', 'result_median_value'];
         $request->validate([
-            'state' => 'required|in:qr_code,results',
+            'state' => 'required|in:' . implode(',', $validStates),
         ]);
 
         $projectionStateKey = "projection_state_{$game_id}_{$question_id}";

@@ -23,13 +23,6 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-2xl font-bold text-gray-900">回答一覧</h3>
-                        <button 
-                            id="showResultsBtn" 
-                            type="button"
-                            class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-emerald-700 hover:border-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                            onclick="showResults()">
-                            結果を投影画面に表示
-                        </button>
                     </div>
                     
                     <div class="overflow-x-auto">
@@ -57,30 +50,34 @@
 
             {{-- ナビゲーション --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 flex justify-between items-center">
-                    <div>
-                        @if ($prevQuestionId)
-                            <a href="{{ route('games.host', ['game_id' => $game->id, 'question_id' => $prevQuestionId]) }}" 
-                               class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-                               onclick="return confirm('本当に前の問題に戻りますか？');">
-                                ← 前の問題へ
-                            </a>
-                        @endif
+                <div class="p-6">
+                    <div class="mb-4 text-center">
+                        <p class="text-sm text-gray-600 font-medium">
+                            📺 投影画面操作
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            これらのボタンで投影画面の表示を切り替えます
+                        </p>
                     </div>
-                    <div>
-                        @if ($nextQuestionId)
-                            <a href="{{ route('games.host', ['game_id' => $game->id, 'question_id' => $nextQuestionId]) }}" 
-                               class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-                               onclick="return confirm('次の問題に進みますか？\n\nこの操作により、投影画面も次の問題のQRコード表示に切り替わります。');">
-                                次の問題へ →
-                            </a>
-                        @else
-                            <a href="{{ route('games.result', ['game' => $game->id]) }}" 
-                               class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-                               onclick="return confirm('結果画面に移動しますか？');">
-                                結果を見る →
-                            </a>
-                        @endif
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <button 
+                                id="prevBtn"
+                                type="button"
+                                class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                onclick="navigatePrevious()">
+                                ← 前へ
+                            </button>
+                        </div>
+                        <div>
+                            <button 
+                                id="nextBtn"
+                                type="button"
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                onclick="navigateNext()">
+                                次へ →
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -93,6 +90,7 @@
         const questionId = {{ $question->id }};
         const answersUrl = '{{ route("games.answers", ["game_id" => $game->id, "question_id" => $question->id]) }}';
         const projectionStateUrl = '{{ route("games.update-projection-state", ["game_id" => $game->id, "question_id" => $question->id]) }}';
+        const projectionStateGetUrl = '{{ route("games.projection-state", ["game_id" => $game->id, "question_id" => $question->id]) }}';
         const projectionUrl = '{{ route("games.projection", ["game_id" => $game->id, "question_id" => $question->id]) }}';
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const allTeams = @json($teams->values());
@@ -115,12 +113,34 @@
             openProjectionWindow();
         });
 
-        // 結果表示ボタン
-        async function showResults() {
-            if (!confirm('投影画面に結果を表示しますか？\n\nこの操作により、投影画面が結果表示モードに切り替わります。')) {
-                return;
-            }
+        // 状態の順序定義
+        const stateOrder = [
+            'qr_code',
+            'result_max_team',
+            'result_max_value',
+            'result_min_team',
+            'result_min_value',
+            'result_median_team',
+            'result_median_value'
+        ];
 
+        let currentState = 'qr_code';
+        const hasNextQuestion = {{ $nextQuestionId ? 'true' : 'false' }};
+        const hasPrevQuestion = {{ $prevQuestionId ? 'true' : 'false' }};
+
+        // 現在の状態を取得
+        async function getCurrentState() {
+            try {
+                const response = await fetch(projectionStateGetUrl);
+                const data = await response.json();
+                return data.state || 'qr_code';
+            } catch (error) {
+                return 'qr_code';
+            }
+        }
+
+        // 状態を更新
+        async function updateState(newState) {
             try {
                 const response = await fetch(projectionStateUrl, {
                     method: 'POST',
@@ -128,18 +148,80 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                     },
-                    body: JSON.stringify({ state: 'results' }),
+                    body: JSON.stringify({ state: newState }),
                 });
-
                 if (response.ok) {
-                    const data = await response.json();
-                    console.log('投影画面の状態を更新しました:', data);
+                    currentState = newState;
+                    updateButtonStates();
                 }
             } catch (error) {
                 console.error('エラー:', error);
-                alert('エラーが発生しました。もう一度お試しください。');
             }
         }
+
+        // ボタンの有効/無効を更新
+        async function updateButtonStates() {
+            const currentStateIndex = stateOrder.indexOf(currentState);
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // 前へボタン：最初の状態でない、または前の問題がある場合
+            if (currentStateIndex > 0 || hasPrevQuestion) {
+                prevBtn.disabled = false;
+            } else {
+                prevBtn.disabled = true;
+            }
+
+            // 次へボタン：最後の状態でない、または次の問題がある場合
+            if (currentStateIndex < stateOrder.length - 1 || hasNextQuestion) {
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.disabled = true;
+            }
+        }
+
+        // 次へ
+        async function navigateNext() {
+            const currentStateIndex = stateOrder.indexOf(currentState);
+            
+            if (currentStateIndex < stateOrder.length - 1) {
+                // 次の状態に進む
+                const nextState = stateOrder[currentStateIndex + 1];
+                await updateState(nextState);
+            } else if (hasNextQuestion) {
+                // 次の問題へ
+                if (confirm('次の問題に進みますか？\n\nこの操作により、投影画面も次の問題のQRコード表示に切り替わります。')) {
+                    window.location.href = '{{ $nextQuestionId ? route("games.host", ["game_id" => $game->id, "question_id" => $nextQuestionId]) : "#" }}';
+                }
+            } else {
+                // 結果画面へ
+                if (confirm('結果画面に移動しますか？\n\nこの操作により、投影画面が閉じられる可能性があります。')) {
+                    window.location.href = '{{ route("games.result", ["game" => $game->id]) }}';
+                }
+            }
+        }
+
+        // 前へ
+        async function navigatePrevious() {
+            const currentStateIndex = stateOrder.indexOf(currentState);
+            
+            if (currentStateIndex > 0) {
+                // 前の状態に戻る
+                const prevState = stateOrder[currentStateIndex - 1];
+                await updateState(prevState);
+            } else if (hasPrevQuestion) {
+                // 前の問題へ
+                if (confirm('前の問題に戻りますか？\n\nこの操作により、投影画面も前の問題のQRコード表示に切り替わります。')) {
+                    window.location.href = '{{ $prevQuestionId ? route("games.host", ["game_id" => $game->id, "question_id" => $prevQuestionId]) : "#" }}';
+                }
+            }
+        }
+
+        // 初期化
+        window.addEventListener('load', async () => {
+            currentState = await getCurrentState();
+            updateButtonStates();
+        });
 
         async function fetchAnswers() {
             try {

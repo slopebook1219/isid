@@ -118,7 +118,7 @@
             flex-shrink: 0;
         }
         .results-header h2 {
-            font-size: 6vh;
+            font-size: 8vh;
             font-weight: bold;
             margin: 0;
         }
@@ -131,7 +131,7 @@
         }
         .result-item {
             background: #F3F4F6;
-            padding: 2vh 3vw;
+            padding: 3vh 4vw;
             border-radius: 16px;
             border: 1px solid #E5E7EB;
             flex: 1;
@@ -141,19 +141,21 @@
             min-height: 0;
         }
         .result-label {
-            font-size: 2.5vh;
+            font-size: 4vh;
             color: #6B7280;
-            margin-bottom: 1vh;
+            margin-bottom: 2vh;
+            font-weight: 600;
         }
         .result-value {
-            font-size: 8vh;
+            font-size: 12vh;
             font-weight: bold;
-            margin-bottom: 1vh;
+            margin-bottom: 2vh;
             line-height: 1;
         }
         .result-team {
-            font-size: 4vh;
+            font-size: 6vh;
             color: #1F2937;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -189,28 +191,16 @@
     </div>
 
     {{-- 結果表示モード --}}
-    <div id="resultsContainer">
+    <div id="resultsContainer" style="display: none;">
         <div class="results-header">
-            <h2>結果</h2>
+            <h2 id="resultTitle">結果</h2>
         </div>
         
         <div class="results-list">
             <div class="result-item">
-                <div class="result-label">最大値</div>
-                <div id="maxValue" class="result-value">-</div>
-                <div id="maxTeam" class="result-team">-</div>
-            </div>
-            
-            <div class="result-item">
-                <div class="result-label">最小値</div>
-                <div id="minValue" class="result-value">-</div>
-                <div id="minTeam" class="result-team">-</div>
-            </div>
-            
-            <div class="result-item">
-                <div class="result-label">中央値</div>
-                <div id="medianValue" class="result-value">-</div>
-                <div id="medianTeam" class="result-team">-</div>
+                <div class="result-label" id="currentLabel">-</div>
+                <div id="currentValue" class="result-value" style="display: none;">-</div>
+                <div id="currentTeam" class="result-team">-</div>
             </div>
         </div>
     </div>
@@ -228,18 +218,17 @@
 
         const qrCodeContainer = document.getElementById('qrCodeContainer');
         const resultsContainer = document.getElementById('resultsContainer');
-        const statElements = {
-            max: { value: document.getElementById('maxValue'), team: document.getElementById('maxTeam') },
-            min: { value: document.getElementById('minValue'), team: document.getElementById('minTeam') },
-            median: { value: document.getElementById('medianValue'), team: document.getElementById('medianTeam') }
-        };
+        const resultTitle = document.getElementById('resultTitle');
+        const currentLabel = document.getElementById('currentLabel');
+        const currentValue = document.getElementById('currentValue');
+        const currentTeam = document.getElementById('currentTeam');
 
         // 全画面表示
         const requestFullscreen = () => {
             const el = document.documentElement;
             const methods = ['requestFullscreen', 'webkitRequestFullscreen', 'mozRequestFullScreen', 'msRequestFullscreen'];
             const method = methods.find(m => el[m]);
-            if (method) el[m]().catch(() => {});
+            if (method) el[method]().catch(() => {});
         };
 
         // 表示切り替え
@@ -247,26 +236,79 @@
             if (state === 'qr_code') {
                 qrCodeContainer.style.display = 'flex';
                 resultsContainer.style.display = 'none';
-            } else if (state === 'results') {
+            } else if (state.startsWith('result_')) {
                 qrCodeContainer.style.display = 'none';
                 resultsContainer.style.display = 'flex';
+                displayResultStep(state);
             }
         };
 
-        // 統計情報表示
-        const displayStats = (data) => {
-            ['max', 'min', 'median'].forEach(key => {
-                const value = data[key];
-                const unit = config.questionUnit || '';
-                statElements[key].value.textContent = value !== null ? `${value}${unit}` : '-';
-                statElements[key].team.textContent = data[`${key}_team`] || '-';
-            });
-        };
+        let statsData = null;
+
+        // 統計情報を取得して保存
+        async function loadStats() {
+            const data = await fetchData(config.urls.stats);
+            if (data) statsData = data;
+            return data;
+        }
+
+        // 段階的な結果表示
+        async function displayResultStep(state) {
+            if (!statsData) {
+                await loadStats();
+            }
+
+            if (!statsData) {
+                currentLabel.textContent = 'データなし';
+                currentTeam.textContent = '-';
+                currentValue.style.display = 'none';
+                return;
+            }
+
+            const unit = config.questionUnit || '';
+
+            if (state === 'result_max_team') {
+                resultTitle.textContent = '結果 - 最大値';
+                currentLabel.textContent = '最大値';
+                currentTeam.textContent = statsData.max_team ? `チーム : ${statsData.max_team}` : '-';
+                currentValue.style.display = 'none';
+            } else if (state === 'result_max_value') {
+                resultTitle.textContent = '結果 - 最大値';
+                currentLabel.textContent = '最大値';
+                currentTeam.textContent = statsData.max_team ? `チーム : ${statsData.max_team}` : '-';
+                currentValue.textContent = statsData.max !== null ? `${Math.round(statsData.max)}${unit}` : '-';
+                currentValue.style.display = 'block';
+            } else if (state === 'result_min_team') {
+                resultTitle.textContent = '結果 - 最小値';
+                currentLabel.textContent = '最小値';
+                currentTeam.textContent = statsData.min_team ? `チーム : ${statsData.min_team}` : '-';
+                currentValue.style.display = 'none';
+            } else if (state === 'result_min_value') {
+                resultTitle.textContent = '結果 - 最小値';
+                currentLabel.textContent = '最小値';
+                currentTeam.textContent = statsData.min_team ? `チーム : ${statsData.min_team}` : '-';
+                currentValue.textContent = statsData.min !== null ? `${Math.round(statsData.min)}${unit}` : '-';
+                currentValue.style.display = 'block';
+            } else if (state === 'result_median_team') {
+                resultTitle.textContent = '結果 - 中央値';
+                currentLabel.textContent = '中央値';
+                currentTeam.textContent = statsData.median_team ? `チーム : ${statsData.median_team}` : '-';
+                currentValue.style.display = 'none';
+            } else if (state === 'result_median_value') {
+                resultTitle.textContent = '結果 - 中央値';
+                currentLabel.textContent = '中央値';
+                currentTeam.textContent = statsData.median_team ? `チーム : ${statsData.median_team}` : '-';
+                currentValue.textContent = statsData.median !== null ? `${Math.round(statsData.median)}${unit}` : '-';
+                currentValue.style.display = 'block';
+            }
+        }
 
         // API呼び出し
         const fetchData = async (url) => {
             try {
-                const res = await fetch(url);
+                const res = await fetch(url, {
+                    credentials: 'same-origin'
+                });
                 return await res.json();
             } catch (error) {
                 console.error('API呼び出しエラー:', error);
@@ -280,11 +322,6 @@
             if (!stateData) return;
             
             switchView(stateData.state);
-            
-            if (stateData.state === 'results') {
-                const statsData = await fetchData(config.urls.stats);
-                if (statsData) displayStats(statsData);
-            }
         };
 
         // 初期化
