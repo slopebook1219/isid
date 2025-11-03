@@ -21,7 +21,17 @@ Route::middleware('auth')->group(function () {
 
     //質問に関するルート
     Route::get('/questions', [QuestionController::class, 'index'])->name('questions.index');
-    Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
+    
+    // JSON API ルート
+    Route::prefix('api')->middleware('api')->group(function () {
+        Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
+        Route::get('/questions/{question}', [QuestionController::class, 'show'])
+             ->name('questions.show');
+        Route::put('/questions/{question}', [QuestionController::class, 'update'])
+             ->name('questions.update');
+        Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])
+             ->name('questions.destroy');
+    });
         //ルームに関するルート
     Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
     Route::get('/rooms/create', [RoomController::class, 'create'])->name('rooms.create');
@@ -37,14 +47,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
     Route::get('/games/{game_id}/play/{question_id}', [GameController::class, 'play'])->name('games.play');
 
-    Route::get('/questions/{question}', [QuestionController::class, 'show'])
-         ->name('questions.show');
-
-    Route::put('/questions/{question}', [QuestionController::class, 'update'])
-         ->name('questions.update');
-         
-    Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])
-         ->name('questions.destroy');
     Route::get('/games/{game_id}/questions/{question_id}/play', [GameController::class, 'play'])->name('games.play');
     Route::get('/games/{game}/result', [GameController::class, 'result'])->name('games.result');
 });
