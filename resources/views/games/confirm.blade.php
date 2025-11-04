@@ -1,4 +1,6 @@
-<h2>この内容でゲームを始めますか？</h2>
+
+<x-app-layout>
+    <h2>この内容でゲームを始めますか？</h2>
 
 <p><strong>ルーム名：</strong> {{ $room->name }}</p>
 
@@ -18,3 +20,4 @@
 
     <button type="submit">スタート</button>
 </form>
+</x-app-layout>

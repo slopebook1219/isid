@@ -1,4 +1,5 @@
-<div>
+<x-app-layout>
+    <div>
     セットアップページです
     {{ $room->name }}を作成しました。
 </div>
@@ -17,3 +18,4 @@
 
     <button type="submit">チームを登録</button>
 </form>
+</x-app-layout>
