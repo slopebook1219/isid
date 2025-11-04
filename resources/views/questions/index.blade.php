@@ -47,7 +47,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-2">
                                                 <button @click="
-                                                            axios.get(`/questions/{{ $question->id }}`)
+                                                            axios.get(`/api/questions/{{ $question->id }}`)
                                                                 .then(response => {
                                                                     editingQuestion = response.data;
                                                                     showModal = true;
@@ -59,7 +59,7 @@
                                                 </button>
                                                 <button @click="
                                                     if (confirm('「{{ $question->text }}」を本当に削除しますか？')) {
-                                                        axios.delete(`/questions/{{ $question->id }}`)
+                                                        axios.delete(`/api/questions/{{ $question->id }}`)
                                                             .then(response => {
                                                                 document.getElementById('question-row-{{ $question->id }}').remove();
                                                                 message = response.data.message;
@@ -108,7 +108,7 @@
                                 
                                 <div class="mt-4">
                                     <form @submit.prevent="
-                                        axios.put(`/questions/${editingQuestion.id}`, {
+                                        axios.put(`/api/questions/${editingQuestion.id}`, {
                                             text: editingQuestion.text,
                                             unit: editingQuestion.unit
                                         })
@@ -170,7 +170,7 @@
                                 
                                 <div class="mt-4">
                                     <form @submit.prevent="
-                                        axios.post('/questions', {
+                                        axios.post('/api/questions', {
                                             text: newQuestion.text,
                                             unit: newQuestion.unit
                                         })
