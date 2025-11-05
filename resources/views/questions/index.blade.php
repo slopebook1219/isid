@@ -10,7 +10,12 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200 select-none">   
 
-                    <div x-data="{ showModal: false, editingQuestion: { id: null, text: '', unit: '' } }">
+                    <div x-data="{ 
+                        showModal: false, 
+                        showCreateModal: false,
+                        editingQuestion: { id: null, text: '', unit: '' },
+                        newQuestion: { text: '', unit: '' }
+                    }">
                         
                         
                         <table class="min-w-full divide-y divide-gray-200 table-fixed select-none">
@@ -42,7 +47,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-2">
                                                 <button @click="
-                                                            axios.get(`/questions/{{ $question->id }}`)
+                                                            axios.get(`/api/questions/{{ $question->id }}`)
                                                                 .then(response => {
                                                                     editingQuestion = response.data;
                                                                     showModal = true;
@@ -54,7 +59,7 @@
                                                 </button>
                                                 <button @click="
                                                     if (confirm('「{{ $question->text }}」を本当に削除しますか？')) {
-                                                        axios.delete(`/questions/{{ $question->id }}`)
+                                                        axios.delete(`/api/questions/{{ $question->id }}`)
                                                             .then(response => {
                                                                 document.getElementById('question-row-{{ $question->id }}').remove();
                                                                 message = response.data.message;
@@ -82,10 +87,13 @@
                         </table>
 
                         <div class="flex justify-end mt-4 select-none">
-                            <a href="{{ route('questions.create') }}"
+                            <button @click="
+                                newQuestion = { text: '', unit: '' };
+                                showCreateModal = true;
+                            "
                                     class="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
                                 ＋ 問題作成
-                            </a>
+                            </button>
                         </div>
 
 
@@ -96,10 +104,11 @@
                             <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
                                  @click.away="showModal = false">
                                  
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">編集</h3>
                                 
                                 <div class="mt-4">
                                     <form @submit.prevent="
-                                        axios.put(`/questions/${editingQuestion.id}`, {
+                                        axios.put(`/api/questions/${editingQuestion.id}`, {
                                             text: editingQuestion.text,
                                             unit: editingQuestion.unit
                                         })
@@ -143,6 +152,57 @@
                                             <button type="submit"
                                                     class="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
                                                 更新
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="showCreateModal"
+                             class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+                             style="display: none;">
+                             
+                            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+                                 @click.away="showCreateModal = false">
+                                 
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">作成</h3>
+                                
+                                <div class="mt-4">
+                                    <form @submit.prevent="
+                                        axios.post('/api/questions', {
+                                            text: newQuestion.text,
+                                            unit: newQuestion.unit
+                                        })
+                                        .then(response => {
+                                            message = response.data.message;
+                                            showCreateModal = false;
+                                            location.reload();
+                                        })
+                                        .catch(error => {
+                                            console.error('作成エラー:', error.response?.data || error);
+                                            alert('作成に失敗しました。');
+                                        });
+                                    ">
+                                        @csrf
+                                        <div class="mb-4">
+                                            <label for="createText" class="block font-medium text-sm text-gray-700">問題文</label>
+                                            <input type="text" id="createText" x-model="newQuestion.text" required
+                                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="createUnit" class="block font-medium text-sm text-gray-700">単位</label>
+                                            <input type="text" id="createUnit" x-model="newQuestion.unit" required
+                                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </div>
+                                        <div class="flex justify-end space-x-2 mt-4">
+                                            <button type="button" @click="showCreateModal = false"
+                                                    class="inline-block bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
+                                                キャンセル
+                                            </button>
+                                            <button type="submit"
+                                                    class="inline-block bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
+                                                作成
                                             </button>
                                         </div>
                                     </form>
