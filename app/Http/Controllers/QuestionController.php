@@ -37,16 +37,6 @@ class QuestionController extends Controller
             'question' => $question,
         ]);
     }
-
-    /**
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show(Question $question): JsonResponse
-    {
-        return response()->json($question);
-    }
-
     /**
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Question  $question

@@ -11,9 +11,9 @@
                 <div class="p-6 bg-white border-b border-gray-200 select-none">   
 
                     <div x-data="{ 
-                        showModal: false, 
+                        showEditModal: false, 
                         showCreateModal: false,
-                        editingQuestion: { id: null, text: '', unit: '' },
+                        editingQuestion: { id: null, text: '', unit: '', updateUrl: '' },
                         newQuestion: { text: '', unit: '' }
                     }">
                         
@@ -47,27 +47,28 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-2">
                                                 <button @click="
-                                                            axios.get(`/api/questions/{{ $question->id }}`)
-                                                                .then(response => {
-                                                                    editingQuestion = response.data;
-                                                                    showModal = true;
-                                                                })
-                                                                .catch(error => console.error(error));
-                                                        "
+                                                        editingQuestion = {
+                                                            id: {{ $question->id }},
+                                                            text: '{{ addslashes($question->text) }}',
+                                                            unit: '{{ addslashes($question->unit) }}',
+                                                            updateUrl: '{{ route('questions.update', $question) }}'
+                                                        };
+                                                        showEditModal = true;
+                                                    "
                                                    class="text-indigo-600 hover:text-indigo-900">
                                                     編集
                                                 </button>
                                                 <button @click="
                                                     if (confirm('「{{ $question->text }}」を本当に削除しますか？')) {
-                                                        axios.delete(`/api/questions/{{ $question->id }}`)
+                                                        axios.delete(`{{ route('questions.destroy', $question->id)}}`)
                                                             .then(response => {
-                                                                document.getElementById('question-row-{{ $question->id }}').remove();
-                                                                message = response.data.message;
-                                                            })
-                                                            .catch(error => {
-                                                                console.error('削除エラー:', error);
-                                                                alert('削除に失敗しました。');
-                                                            });
+                                                            document.getElementById('question-row-{{ $question->id }}').remove();
+                                                            message = response.data.message;
+                                                        }) 
+                                                        .catch(error => {
+                                                            console.error('削除エラー:', error);
+                                                            alert('削除に失敗しました。');
+                                                        });
                                                     }
                                                 "
                                                    class="text-red-600 hover:text-red-900">
@@ -97,18 +98,18 @@
                         </div>
 
 
-                        <div x-show="showModal"
+                        <div x-show="showEditModal"
                              class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
                              style="display: none;">
                              
                             <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
-                                 @click.away="showModal = false">
+                                 @click.away="showEditModal = false">
                                  
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">編集</h3>
                                 
                                 <div class="mt-4">
                                     <form @submit.prevent="
-                                        axios.put(`/api/questions/${editingQuestion.id}`, {
+                                        axios.put(editingQuestion.updateUrl, {
                                             text: editingQuestion.text,
                                             unit: editingQuestion.unit
                                         })
@@ -126,7 +127,7 @@
                                             }
                                             
                                             message = response.data.message;
-                                            showModal = false;
+                                            showEditModal = false;
                                         })
                                         .catch(error => {
                                             console.error('更新エラー:', error.response.data);
@@ -145,7 +146,7 @@
                                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         </div>
                                         <div class="flex justify-end space-x-2 mt-4">
-                                            <button type="button" @click="showModal = false"
+                                            <button type="button" @click="showEditModal = false"
                                                     class="inline-block bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition duration-150 ease-in-out">
                                                 キャンセル
                                             </button>
@@ -170,7 +171,7 @@
                                 
                                 <div class="mt-4">
                                     <form @submit.prevent="
-                                        axios.post('/api/questions', {
+                                        axios.post('{{ route('questions.store') }}', {
                                             text: newQuestion.text,
                                             unit: newQuestion.unit
                                         })
