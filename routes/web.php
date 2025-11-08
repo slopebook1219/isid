@@ -25,8 +25,6 @@ Route::middleware('auth')->group(function () {
     // JSON API ルート
     Route::prefix('api')->middleware('api')->group(function () {
         Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
-        Route::get('/questions/{question}', [QuestionController::class, 'show'])
-             ->name('questions.show');
         Route::put('/questions/{question}', [QuestionController::class, 'update'])
              ->name('questions.update');
         Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])
