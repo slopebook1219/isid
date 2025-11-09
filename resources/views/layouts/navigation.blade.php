@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 w-full">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 fixed top-0 left-0 w-full z-50">
     <div class="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8">
         <div class="flex items-center">
             <a href="{{ route('dashboard') }}">
