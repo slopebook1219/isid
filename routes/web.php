@@ -44,6 +44,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/games/confirm', [GameController::class, 'confirm'])->name('games.confirm');
     Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
     Route::get('/games/{game_id}/play/{question_id}', [GameController::class, 'play'])->name('games.play');
+    Route::get('/games/{game_id}/host/{question_id}', [GameController::class, 'host'])->name('games.host');
+    Route::get('/games/{game_id}/projection/{question_id}', [GameController::class, 'projection'])->name('games.projection');
+    
+    // ゲームAPIエンドポイント
+    Route::prefix('api')->group(function () {
+        Route::get('/games/{game_id}/questions/{question_id}/answers', [GameController::class, 'getAnswers'])->name('games.answers');
+        Route::get('/games/{game_id}/questions/{question_id}/stats', [GameController::class, 'getStats'])->name('games.stats');
+        Route::get('/games/{game_id}/questions/{question_id}/projection-state', [GameController::class, 'getProjectionState'])->name('games.projection-state');
+        Route::post('/games/{game_id}/questions/{question_id}/projection-state', [GameController::class, 'updateProjectionState'])->name('games.update-projection-state');
+    });
 
     Route::get('/games/{game_id}/questions/{question_id}/play', [GameController::class, 'play'])->name('games.play');
     Route::get('/games/{game}/result', [GameController::class, 'result'])->name('games.result');
