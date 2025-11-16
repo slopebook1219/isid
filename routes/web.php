@@ -43,9 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
     Route::post('/games/confirm', [GameController::class, 'confirm'])->name('games.confirm');
     Route::post('/games/start', [GameController::class, 'start'])->name('games.start');
-    Route::get('/games/{game_id}/play/{question_id}', [GameController::class, 'play'])->name('games.play');
-    Route::get('/games/{game_id}/host/{question_id}', [GameController::class, 'host'])->name('games.host');
-    Route::get('/games/{game_id}/projection/{question_id}', [GameController::class, 'projection'])->name('games.projection');
+    Route::get('/games/{game_id}/questions/{question_id}/host', [GameController::class, 'host'])->name('games.host');
+    Route::get('/games/{game_id}/questions/{question_id}/projection', [GameController::class, 'projection'])->name('games.projection');
     
     // ゲームAPIエンドポイント
     Route::prefix('api')->group(function () {
