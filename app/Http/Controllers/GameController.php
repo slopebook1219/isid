@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller; 
 use App\Models\Room;
 use App\Models\Game;
+use App\Models\Answer;
+use Illuminate\Support\Facades\Session;
 
 class GameController extends Controller
 {
@@ -43,13 +45,13 @@ class GameController extends Controller
         $game->questions()->attach($request->question_ids);
 
         $firstQuestionId = $request->question_ids[0];
-        return redirect()->route('games.play', ['game_id' => $game->id, 'question_id' => $firstQuestionId])->with('success', 'ゲームを作成しました。');
+        return redirect()->route('games.host', ['game_id' => $game->id, 'question_id' => $firstQuestionId])->with('success', 'ゲームを開始しました。');
     }
 
     public function play($game_id, $question_id)
     {
         $game = Game::with('questions')->findOrFail($game_id);
-        $question = $game->questions()->findOrFail($question_id);
+        $question = $game->questions->where('id', $question_id)->firstOrFail();
         $questionIds = $game->questions->pluck('id')->toArray();
         $currentIndex = array_search($question_id, $questionIds);
         $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
@@ -58,11 +60,157 @@ class GameController extends Controller
         return view('games.play', compact('game', 'question', 'nextQuestionId', 'questionNumber'));
     }
 
-public function result($game_id)
-{
-    $game = Game::with('questions')->findOrFail($game_id);
+    public function result($game_id)
+    {
+        $game = Game::with('questions')->findOrFail($game_id);
 
-    return view('games.result', compact('game'));
-}
+        return view('games.result', compact('game'));
+    }
 
+    public function host($game_id, $question_id)
+    {
+        $game = Game::with(['questions', 'room.teams'])->findOrFail($game_id);
+        $question = $game->questions->where('id', $question_id)->firstOrFail();
+        $questionIds = $game->questions->pluck('id')->toArray();
+        $currentIndex = array_search($question_id, $questionIds);
+        $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
+        $prevQuestionId = ($currentIndex > 0) ? $questionIds[$currentIndex - 1] : null;
+        $questionNumber = $currentIndex + 1;
+        $teams = $game->room->teams->sortBy('name');
+
+        // 投影画面の状態を初期化（QRコード表示）
+        $projectionStateKey = "projection_state_{$game_id}_{$question_id}";
+        Session::put($projectionStateKey, 'qr_code');
+
+        return view('games.host', compact('game', 'question', 'nextQuestionId', 'prevQuestionId', 'questionNumber', 'teams'));
+    }
+
+    public function projection($game_id, $question_id)
+    {
+        $game = Game::with('questions')->findOrFail($game_id);
+        $question = $game->questions->where('id', $question_id)->firstOrFail();
+        $questionIds = $game->questions->pluck('id')->toArray();
+        $currentIndex = array_search($question_id, $questionIds);
+        $questionNumber = $currentIndex + 1;
+
+        return view('games.projection', compact('game', 'question', 'questionNumber'));
+    }
+
+    public function getAnswers($game_id, $question_id)
+    {
+        $answers = Answer::where('game_id', $game_id)
+            ->where('question_id', $question_id)
+            ->with('team')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'answers' => $answers->map(function ($answer) {
+                return [
+                    'id' => $answer->id,
+                    'team_id' => $answer->team_id,
+                    'team_name' => $answer->team->name,
+                    'answer_value' => $answer->answer_value,
+                ];
+            }),
+        ]);
+    }
+
+    public function getStats($game_id, $question_id)
+    {
+        $answers = Answer::where('game_id', $game_id)
+            ->where('question_id', $question_id)
+            ->with('team')
+            ->get();
+
+        if ($answers->isEmpty()) {
+            return response()->json([
+                'max' => null,
+                'min' => null,
+                'median' => null,
+                'max_team' => null,
+                'min_team' => null,
+                'median_team' => null,
+            ]);
+        }
+
+        $values = $answers->pluck('answer_value')->toArray();
+        $maxValue = max($values);
+        $minValue = min($values);
+
+        // 中央値計算
+        sort($values);
+        $count = count($values);
+        if ($count % 2 === 0) {
+            $medianValue = ($values[$count / 2 - 1] + $values[$count / 2]) / 2;
+        } else {
+            $medianValue = $values[intval($count / 2)];
+        }
+
+        // 該当チームを取得
+        $maxTeam = $answers->firstWhere('answer_value', $maxValue)->team->name ?? null;
+        $minTeam = $answers->firstWhere('answer_value', $minValue)->team->name ?? null;
+        
+        $medianTeams = [];
+        if ($count % 2 === 0) {
+            $medianValue1 = $values[$count / 2 - 1];
+            $medianValue2 = $values[$count / 2];
+            
+            $medianAnswers1 = $answers->filter(function ($answer) use ($medianValue1) {
+                return abs($answer->answer_value - $medianValue1) < 0.0001;
+            });
+            $medianAnswers2 = $answers->filter(function ($answer) use ($medianValue2) {
+                return abs($answer->answer_value - $medianValue2) < 0.0001;
+            });
+            
+            foreach ($medianAnswers1 as $answer) {
+                $medianTeams[] = $answer->team->name;
+            }
+            foreach ($medianAnswers2 as $answer) {
+                if (!in_array($answer->team->name, $medianTeams)) {
+                    $medianTeams[] = $answer->team->name;
+                }
+            }
+        } else {
+            $medianAnswer = $answers->sortBy(function ($answer) use ($medianValue) {
+                return abs($answer->answer_value - $medianValue);
+            })->first();
+            if ($medianAnswer) {
+                $medianTeams[] = $medianAnswer->team->name;
+            }
+        }
+        
+        $medianTeam = !empty($medianTeams) ? implode('、', $medianTeams) : null;
+
+        return response()->json([
+            'max' => $maxValue,
+            'min' => $minValue,
+            'median' => $medianValue,
+            'max_team' => $maxTeam,
+            'min_team' => $minTeam,
+            'median_team' => $medianTeam,
+            'median_teams' => $medianTeams, 
+        ]);
+    }
+
+    public function getProjectionState($game_id, $question_id)
+    {
+        $projectionStateKey = "projection_state_{$game_id}_{$question_id}";
+        $state = Session::get($projectionStateKey, 'qr_code');
+
+        return response()->json(['state' => $state]);
+    }
+
+    public function updateProjectionState(Request $request, $game_id, $question_id)
+    {
+        $validStates = ['qr_code', 'result_max_team', 'result_max_value', 'result_min_team', 'result_min_value', 'result_median_team', 'result_median_value'];
+        $request->validate([
+            'state' => 'required|in:' . implode(',', $validStates),
+        ]);
+
+        $projectionStateKey = "projection_state_{$game_id}_{$question_id}";
+        Session::put($projectionStateKey, $request->state);
+
+        return response()->json(['success' => true, 'state' => $request->state]);
+    }
 }
