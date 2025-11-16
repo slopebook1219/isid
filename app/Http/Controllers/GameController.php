@@ -51,7 +51,7 @@ class GameController extends Controller
     public function play($game_id, $question_id)
     {
         $game = Game::with('questions')->findOrFail($game_id);
-        $question = $game->questions()->findOrFail($question_id);
+        $question = $game->questions->where('id', $question_id)->firstOrFail();
         $questionIds = $game->questions->pluck('id')->toArray();
         $currentIndex = array_search($question_id, $questionIds);
         $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
@@ -70,7 +70,7 @@ class GameController extends Controller
     public function host($game_id, $question_id)
     {
         $game = Game::with(['questions', 'room.teams'])->findOrFail($game_id);
-        $question = $game->questions()->findOrFail($question_id);
+        $question = $game->questions->where('id', $question_id)->firstOrFail();
         $questionIds = $game->questions->pluck('id')->toArray();
         $currentIndex = array_search($question_id, $questionIds);
         $nextQuestionId = $questionIds[$currentIndex + 1] ?? null;
@@ -88,7 +88,7 @@ class GameController extends Controller
     public function projection($game_id, $question_id)
     {
         $game = Game::with('questions')->findOrFail($game_id);
-        $question = $game->questions()->findOrFail($question_id);
+        $question = $game->questions->where('id', $question_id)->firstOrFail();
         $questionIds = $game->questions->pluck('id')->toArray();
         $currentIndex = array_search($question_id, $questionIds);
         $questionNumber = $currentIndex + 1;
