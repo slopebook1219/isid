@@ -111,7 +111,6 @@ class GameController extends Controller
                     'team_id' => $answer->team_id,
                     'team_name' => $answer->team->name,
                     'answer_value' => $answer->answer_value,
-                    'created_at' => $answer->created_at->format('Y-m-d H:i:s'),
                 ];
             }),
         ]);
