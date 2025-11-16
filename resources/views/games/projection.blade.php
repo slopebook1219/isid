@@ -193,9 +193,7 @@
         <div class="qr-main">
             <div class="qr-question">
                 <p class="qr-question-text">{{ $question->text }}</p>
-                @if($question->unit)
                 <p class="qr-unit">単位: {{ $question->unit }}</p>
-                @endif
             </div>
 
             <div class="qr-code-wrapper">

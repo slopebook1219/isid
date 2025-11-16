@@ -12,9 +12,7 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="text-2xl font-bold mb-4">問題</h3>
                     <p class="text-xl">{{ $question->text }}</p>
-                    @if($question->unit)
                     <p class="text-sm text-gray-500 mt-2">単位: {{ $question->unit }}</p>
-                    @endif
                 </div>
             </div>
 
