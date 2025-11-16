@@ -1,4 +1,5 @@
-<div class="container text-center mt-5">
+<x-app-layout>
+    <div class="container text-center mt-5">
     <h2>第{{ $questionNumber }}問</h2>
 
     <div class="card mx-auto mt-4" style="max-width: 600px;">
@@ -34,3 +35,4 @@
         @endif
     </div>
 </div>
+</x-app-layout>

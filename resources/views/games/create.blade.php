@@ -1,3 +1,4 @@
+<x-app-layout>
 <form method="POST" action="{{ route('games.confirm') }}">
     @csrf
     <h3>Roomを選択</h3>
@@ -17,3 +18,4 @@
 
     <button type="submit">ゲーム開始</button>
 </form>
+</x-app-layout>

@@ -1,3 +1,4 @@
+<x-app-layout>
 <div>
     ルーム作成ページです。
 </div>
@@ -18,3 +19,4 @@
         </button>
     </div>
 </form>
+</x-app-layout>
