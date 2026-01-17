@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Room;
 use Illuminate\Support\Facades\Auth;
@@ -24,13 +25,13 @@ class RoomController extends Controller
         ]);
 
         $room = Room::create([
-        'user_id' => Auth::id(),
-        'name' => $request->name,
-        'total_teams' => $request->total_teams,
-    ]);
+            'user_id' => Auth::id(),
+            'name' => $request->name,
+            'total_teams' => $request->total_teams,
+        ]);
 
-    return redirect()->route('rooms.setup', $room)
-                 ->with('success', 'ルームを作成しました。');
+        return redirect()->route('rooms.setup', $room)
+            ->with('success', 'ルームを作成しました。');
     }
     public function setup(Room $room)
     {
@@ -55,5 +56,4 @@ class RoomController extends Controller
         }
         return redirect()->route('rooms.index')->with('success', 'チームを作成しました。');
     }
-
 }
