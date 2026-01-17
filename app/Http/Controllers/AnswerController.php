@@ -25,7 +25,14 @@ class AnswerController extends Controller
             'answer_value' => 'required|numeric',
         ]);
 
-        Answer::create($validated);
+        Answer::updateOrCreate(
+            [
+                'game_id' => $validated['game_id'],
+                'question_id' => $validated['question_id'],
+                'team_id' => $validated['team_id'],
+            ],
+            ['answer_value' => $validated['answer_value']]
+        );
 
         return redirect()->back()->with('success', '回答を送信しました');
     }
