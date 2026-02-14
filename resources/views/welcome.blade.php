@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
@@ -16,7 +16,7 @@
     <body class="min-h-screen bg-white flex flex-col">
         <!-- Header -->
         <header class="w-full px-8 py-6 bg-white border-b border-gray-200">
-            <div class="flex items-center justify-between"> 
+            <div class="flex items-center justify-between">
                 <!-- Logo -->
                 <div>
                     <img src="{{ asset('images/dentsusoken_logo.png') }}" alt="DENTSUSOKEN_LOGO" class="h-11">
@@ -64,4 +64,17 @@
                 </div>
             </main>
     </body>
+</html> --}}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Laravel React</title>
+    @viteReactRefresh
+    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+</head>
+<body>
+    <div id="app"></div>
+</body>
 </html>
