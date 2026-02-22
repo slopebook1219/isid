@@ -1,6 +1,6 @@
 import "./bootstrap";
 import { createRoot } from "react-dom/client";
-import Welcome from "./components/Welcome";
+import Welcome from "./pages/Welcome";
 
 const rootElement = document.getElementById("app");
 
